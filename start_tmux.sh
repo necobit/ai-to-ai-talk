@@ -56,24 +56,13 @@ if [ $SETUP_RESULT -ne 0 ]; then
     exit 1
 fi
 
-# 新しいtmuxセッションを作成（プロセス終了後もペインを維持）
-tmux new-session -d -s "$SESSION_NAME" -c "$SCRIPT_DIR"
-tmux set-option -t "$SESSION_NAME" remain-on-exit on
+# 新しいtmuxセッションを作成（左ペイン：Agent A）
+tmux new-session -d -s "$SESSION_NAME" -c "$SCRIPT_DIR" \
+    "source $VENV_DIR/bin/activate && python conversation.py --agent A; echo '--- Agent A 終了 ---'; read -p 'Enterで閉じる'"
 
-# ペインを垂直分割
-tmux split-window -h -t "$SESSION_NAME" -c "$SCRIPT_DIR"
-
-# セッションが安定するまで待機
-sleep 1
-
-# 左ペイン（AI-A）でスクリプトを実行
-tmux send-keys -t "$SESSION_NAME:0.0" "cd $SCRIPT_DIR && source $VENV_DIR/bin/activate && python conversation.py --agent A" C-m
-
-# Agent Aが先に起動するように待機
-sleep 1
-
-# 右ペイン（AI-B）でスクリプトを実行
-tmux send-keys -t "$SESSION_NAME:0.1" "cd $SCRIPT_DIR && source $VENV_DIR/bin/activate && python conversation.py --agent B" C-m
+# 右ペインを追加（Agent B）
+tmux split-window -h -t "$SESSION_NAME" -c "$SCRIPT_DIR" \
+    "source $VENV_DIR/bin/activate && python conversation.py --agent B; echo '--- Agent B 終了 ---'; read -p 'Enterで閉じる'"
 
 # セッションにアタッチ
 tmux attach-session -t "$SESSION_NAME"
