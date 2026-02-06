@@ -150,7 +150,8 @@ def run_session(agent_id: str, console: Console, model: str, session_num: int, p
 
         used_role = chars.get("role", "不明")
 
-        # キャラクター情報を保存
+        # セッション番号を含めてキャラクター情報を保存
+        chars["session_num"] = session_num
         with open(CHAR_FILE, "w") as f:
             json.dump(chars, f, ensure_ascii=False, indent=2)
 
@@ -166,7 +167,7 @@ def run_session(agent_id: str, console: Console, model: str, session_num: int, p
 
         while running:
             chars = load_characters()
-            if chars is not None:
+            if chars is not None and chars.get("session_num") == session_num:
                 break
             time.sleep(0.3)
 

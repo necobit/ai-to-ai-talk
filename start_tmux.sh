@@ -1,7 +1,7 @@
 #!/bin/bash
 # AI同士の会話システム - tmux起動スクリプト
 
-SESSION_NAME="ai-talk"
+SESSION_NAME="ai-talk-$$"  # $$はシェルのPIDでユニークなセッション名を生成
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VENV_DIR="$SCRIPT_DIR/.venv"
 
@@ -13,17 +13,11 @@ fi
 # 既存のconversation.pyプロセスを終了
 pkill -f "python.*conversation.py" 2>/dev/null
 
-# 既存のセッションがあれば先に終了
-if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
-    tmux kill-session -t "$SESSION_NAME"
-    # セッションが完全に終了するまで待機
-    while tmux has-session -t "$SESSION_NAME" 2>/dev/null; do
-        sleep 0.5
-    done
-fi
+# ai-talk で始まるすべての古いセッションを終了
+tmux list-sessions 2>/dev/null | grep "^ai-talk" | cut -d: -f1 | xargs -I{} tmux kill-session -t {} 2>/dev/null
 
 # プロセス終了を確実に待つ
-sleep 2
+sleep 1
 
 # 入力バッファをクリア
 stty sane 2>/dev/null
