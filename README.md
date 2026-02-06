@@ -124,6 +124,12 @@ API_KEY = "lm-studio"                       # APIキー
 tmux kill-session -t ai-talk
 ```
 
+## テスト環境
+
+- MacBook Pro 14インチ (2024年11月モデル)
+- Apple M4 Max / 128GB RAM
+- macOS Sequoia 15.7.3
+
 ## ライセンス
 
 MIT
